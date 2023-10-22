@@ -1,0 +1,3 @@
+[submodule "libs/AndroidKotlinFelicaLib"]
+	path = libs/AndroidKotlinFelicaLib
+	url = git@github.com:goroya/AndroidKotlinFelicaLib.git
