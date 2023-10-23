@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">IC Intel</string>
+    <string name="awaiting_tag_intent">Tap card</string>
 </resources>

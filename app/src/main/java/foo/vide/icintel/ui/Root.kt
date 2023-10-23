@@ -9,10 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import foo.vide.icintel.FelicaDataProvider
+import foo.vide.icintel.R
 import foo.vide.icintel.ui.theme.ICIntelTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -26,16 +28,10 @@ fun Root(fetcher: FelicaDataProvider) {
             color = MaterialTheme.colorScheme.background
         ) {
             Box {
-                when (val error = fetcher.error) {
-                    null -> {
-                        Text(
-                            modifier = Modifier.align(Alignment.Center),
-                            text = "¥${"%,d".format(fetcher.balance.toInt())}",
-                            style = MaterialTheme.typography.displayLarge
-                        )
-                    }
-
-                    else -> {
+                val error = fetcher.error
+                val balance = fetcher.balance
+                when {
+                    error != null -> {
                         Text(
                             modifier = Modifier.align(Alignment.Center),
                             text = error,
@@ -43,9 +39,25 @@ fun Root(fetcher: FelicaDataProvider) {
                             color = Color.Red
                         )
                     }
+
+                    balance != null -> {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = "¥${"%,d".format(balance.toInt())}",
+                            style = MaterialTheme.typography.displayLarge
+                        )
+                    }
+
+                    else -> {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = stringResource(R.string.awaiting_tag_intent),
+                            style = MaterialTheme.typography.displayLarge
+                        )
+                    }
                 }
 
-                fetcher.last_updated?.let {
+                fetcher.lastUpdated?.let {
                     Text(
                         modifier = Modifier.align(Alignment.BottomEnd),
                         text = "${it.toLocalDateTime(TimeZone.currentSystemDefault())}",
@@ -63,20 +75,31 @@ private class PProvider : PreviewParameterProvider<UInt> {
 
 @Preview
 @Composable
+private fun Initial() {
+    Root(object : FelicaDataProvider {
+        override val balance = null
+        override val lastUpdated = null
+        override val error = null
+    })
+}
+
+
+@Preview
+@Composable
 private fun Preview(@PreviewParameter(PProvider::class) balance: UInt) {
     Root(object : FelicaDataProvider {
         override val balance = balance
-        override val last_updated = Clock.System.now()
+        override val lastUpdated = Clock.System.now()
         override val error = null
     })
 }
 
 @Preview
 @Composable
-private fun PreviewError() {
+private fun Error() {
     Root(object : FelicaDataProvider {
         override val balance = 0u
-        override val last_updated = Clock.System.now()
+        override val lastUpdated = Clock.System.now()
         override val error = "ERROR"
     })
 }

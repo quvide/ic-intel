@@ -20,14 +20,14 @@ import kotlinx.datetime.Instant
 private val logger = Logger.forTag("FelicaDataProvider")
 
 interface FelicaDataProvider {
-    val balance: UInt
-    val last_updated: Instant?
+    val balance: UInt?
+    val lastUpdated: Instant?
     val error: String?
 }
 
 class FelicaDataProviderImpl : FelicaDataProvider {
-    override var balance by mutableStateOf(0u)
-    override var last_updated by mutableStateOf<Instant?>(null)
+    override var balance by mutableStateOf<UInt?>(null)
+    override var lastUpdated by mutableStateOf<Instant?>(null)
     override var error by mutableStateOf<String?>(null)
 
     suspend fun fromIntent(intent: Intent) {
@@ -68,12 +68,12 @@ class FelicaDataProviderImpl : FelicaDataProvider {
                     .sliceArray(11..12)
                     .run { this[0].toUInt() + this[1].toUInt().shl(8) }
 
-                last_updated = Clock.System.now()
+                lastUpdated = Clock.System.now()
             }
         } catch (e: Exception) {
             logger.e("Failed to read:", e)
             withMutableSnapshot {
-                last_updated = Clock.System.now()
+                lastUpdated = Clock.System.now()
                 error = "ERROR"
             }
         }
